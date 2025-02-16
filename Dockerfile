@@ -1,15 +1,17 @@
-FROM maven:3.9.9-openjdk-17 AS build
+FROM jenkins/jenkins:2.492.1-jdk17
+USER root
 
-WORKDIR /app
+# Install required dependencies and Docker CLI
+RUN apt-get update && apt-get install -y lsb-release
+RUN curl -fsSLo /usr/share/keyrings/docker-archive-keyring.asc \
+  https://download.docker.com/linux/debian/gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) \
+  signed-by=/usr/share/keyrings/docker-archive-keyring.asc] \
+  https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+RUN apt-get update && apt-get install -y docker-ce-cli
 
-# Copy all files into the container
-COPY . .
+USER jenkins
 
-# Install dependencies and build the project
-RUN mvn clean install
-
-# Expose port (optional, depends on your app)
-EXPOSE 8080
-
-# Run the jar file produced by Maven (replace the filename with your actual jar name)
-CMD ["java", "-cp", "target/my-maven-project-1.0-SNAPSHOT.jar", "com.example.App"]
+# Install Blue Ocean and Docker Workflow plugin
+RUN jenkins-plugin-cli --plugins "blueocean docker-workflow"
