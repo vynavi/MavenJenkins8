@@ -8,13 +8,14 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch:'main', url:'https://github.com/vynavi/MavenJenkins8.git'
+                git branch: 'main', url: 'https://github.com/vynavi/MavenJenkins8.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Build Docker image
                     docker.build(DOCKER_IMAGE)
                 }
             }
@@ -24,7 +25,7 @@ pipeline {
             steps {
                 script {
                     docker.image(DOCKER_IMAGE).inside {
-                        sh 'mvn test'
+                        bat 'mvn test' 
                     }
                 }
             }
