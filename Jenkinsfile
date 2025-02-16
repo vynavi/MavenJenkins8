@@ -16,7 +16,7 @@ pipeline {
             steps {
                 script {
                     // Build Docker image
-                    docker.build(DOCKER_IMAGE)
+                    bat 'docker build -t %DOCKER_IMAGE% .'
                 }
             }
         }
@@ -24,9 +24,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 script {
-                    docker.image(DOCKER_IMAGE).inside {
-                        bat 'mvn test' 
-                    }
+                    bat 'docker run -d -p 8080:8080 --name my-maven-container %DOCKER_IMAGE%'
+                    bat 'mvn test'
                 }
             }
         }
